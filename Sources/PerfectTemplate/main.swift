@@ -23,9 +23,17 @@ import PerfectHTTPServer
 // An example request handler.
 // This 'handler' function can be referenced directly in the configuration below.
 func handler(request: HTTPRequest, response: HTTPResponse) {
+    let user = request.param(name: "name", defaultValue: "SwiftBook")!
+    let content = "Hello, \(user)!"
+    
+    let header = "<html><title>Hello, world!</title><body>"
+    let footer = "</body></html>"
+    let html = "\(header)\(content)\(footer)"
+    
+    
 	// Respond with a simple message.
 	response.setHeader(.contentType, value: "text/html")
-	response.appendBody(string: "<html><title>Hello, world!</title><body>Hello, world!</body></html>")
+	response.appendBody(string: html)
 	// Ensure that response.completed() is called when your processing is done.
 	response.completed()
 }
@@ -36,9 +44,13 @@ func handler(request: HTTPRequest, response: HTTPResponse) {
 //		directory (which must be located in the current working directory).
 //	* Performs content compression on outgoing data when appropriate.
 var routes = Routes()
+
+let path = "\(#file.dropLast(35))/webroot"
+print(#line, path)
+
 routes.add(method: .get, uri: "/", handler: handler)
 routes.add(method: .get, uri: "/**",
-		   handler: StaticFileHandler(documentRoot: "./webroot", allowResponseFilters: true).handleRequest)
+		   handler: StaticFileHandler(documentRoot: path, allowResponseFilters: true).handleRequest)
 try HTTPServer.launch(name: "localhost",
 					  port: 8181,
 					  routes: routes,
